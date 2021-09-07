@@ -15,6 +15,7 @@ def load_data_from_file(file_name):
     df = pd.DataFrame()
     try:
         df = pd.read_csv(file_name)
+        df[['longitude', 'latitude']] = df['ll'].str.extract(r'\[(.*?)\, (.*?)\]')
     except FileNotFoundError:
         print("File name is invalid. Please check and try again.")
     return df
@@ -33,14 +34,22 @@ def generate_elevation_statistics_report(df):
         "max_elevation_station": {
             "name": max_row['name'],
             "elevation": max_row['elev'],
-            "lat/lon": max_row['ll'],
+            "latitude": max_row['latitude'],
+            "longitude": max_row['longitude'],
         },
         "min_elevation_station": {
             "name": min_row['name'],
             "elevation": min_row['elev'],
-            "lat/lon": min_row['ll']
-        }
+            "latitude": min_row['latitude'],
+            "longitude": min_row['longitude'],
+        },
+        "stations_missing_elevation_data": sum(df.elev.isnull()),
+        "stations_over_sea_level": df[df.elev > 0].shape[0],
+        "stations_over_2000_feet": df[df.elev > 2000].shape[0],
+        "stations_over_4000_feet": df[df.elev > 4000].shape[0],
+        "stations_over_6000_feet": df[df.elev > 6000].shape[0]
     }
+
     return report
 
 
@@ -60,7 +69,7 @@ if __name__ == '__main__':
             df_all = load_data_from_file(data_file_name)
             if not df_all.empty:
                 df_state = df_all[df_all.state == state_code]
-                if df_state.size > 0:
+                if df_state.shape[0] > 0:
                     elevation_report = generate_elevation_statistics_report(df_state)
                     output_to_file(elevation_report)
                 else:
