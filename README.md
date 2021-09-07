@@ -4,6 +4,7 @@ This is a program that takes in a csv file of station data and state code and ou
 about the stations in that state.
 
 Run the program from the command line in the format
+
 `python analyze_elevation_by_state.py <data_file_name> <state code>`
 
 Output is saved to a file named elevation_report_*<state_code>*.json
