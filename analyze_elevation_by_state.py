@@ -19,9 +19,28 @@ def load_data_from_file(file_name):
     return df
 
 
-def calculate_statistics(df):
-    print(df.tail())
-    print(df.size)
+def generate_elevation_statistics_report(df):
+    min_elevation_index = df.elev.idxmin()
+    max_elevation_index = df.elev.idxmax()
+    min_row = df.loc[min_elevation_index].to_dict()
+    max_row = df.loc[max_elevation_index].to_dict()
+    elevation_report = {
+        "state": df.state.iloc[0],
+        "total_stations": df.shape[0],
+        "median_elevation": round(df.elev.median(), 2),
+        "average_elevation": round(df.elev.mean(), 2),
+        "max_elevation_station": {
+            "name": max_row['name'],
+            "elevation": max_row['elev'],
+            "lat/lon": max_row['ll'],
+        },
+        "min_elevation_station": {
+            "name": min_row['name'],
+            "elevation": min_row['elev'],
+            "lat/lon": min_row['ll']
+        }
+    }
+    return elevation_report
 
 
 if __name__ == '__main__':
@@ -34,7 +53,8 @@ if __name__ == '__main__':
             if not df_all.empty:
                 df_state = df_all[df_all.state == state_code]
                 if df_state.size > 0:
-                    calculate_statistics(df_state)
+                    report = generate_elevation_statistics_report(df_state)
+                    print(report)
                 else:
                     print("State code is valid, but no data exists for it in file.")
         else:
