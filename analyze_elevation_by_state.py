@@ -1,3 +1,4 @@
+import json
 import sys
 
 import pandas as pd
@@ -24,7 +25,7 @@ def generate_elevation_statistics_report(df):
     max_elevation_index = df.elev.idxmax()
     min_row = df.loc[min_elevation_index].to_dict()
     max_row = df.loc[max_elevation_index].to_dict()
-    elevation_report = {
+    report = {
         "state": df.state.iloc[0],
         "total_stations": df.shape[0],
         "median_elevation": round(df.elev.median(), 2),
@@ -40,7 +41,14 @@ def generate_elevation_statistics_report(df):
             "lat/lon": min_row['ll']
         }
     }
-    return elevation_report
+    return report
+
+
+def output_to_file(report):
+    output_file_name = f"elevation_report_{report['state']}.json"
+    with open(output_file_name, "w") as f:
+        json.dump(report, f, indent=4)
+    print(f"Success. Output saved to {output_file_name}")
 
 
 if __name__ == '__main__':
@@ -53,8 +61,8 @@ if __name__ == '__main__':
             if not df_all.empty:
                 df_state = df_all[df_all.state == state_code]
                 if df_state.size > 0:
-                    report = generate_elevation_statistics_report(df_state)
-                    print(report)
+                    elevation_report = generate_elevation_statistics_report(df_state)
+                    output_to_file(elevation_report)
                 else:
                     print("State code is valid, but no data exists for it in file.")
         else:
