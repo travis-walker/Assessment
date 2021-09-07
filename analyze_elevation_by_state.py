@@ -15,6 +15,7 @@ def load_data_from_file(file_name):
     df = pd.DataFrame()
     try:
         df = pd.read_csv(file_name)
+        # splitting ll array into latitude and longitude values for convenience
         df[['longitude', 'latitude']] = df['ll'].str.extract(r'\[(.*?)\, (.*?)\]')
     except FileNotFoundError:
         print("File name is invalid. Please check and try again.")
@@ -67,8 +68,10 @@ if __name__ == '__main__':
         state_code = state_code.upper()
         if is_valid_state_code(state_code):
             df_all = load_data_from_file(data_file_name)
+            # check if file was opened and data was loaded successfully
             if not df_all.empty:
                 df_state = df_all[df_all.state == state_code]
+                # check if state is valid but no data exists in file
                 if df_state.shape[0] > 0:
                     elevation_report = generate_elevation_statistics_report(df_state)
                     output_to_file(elevation_report)
